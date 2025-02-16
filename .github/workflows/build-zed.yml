@@ -20,7 +20,7 @@ jobs:
           repository: zed-industries/zed
 
       - name: Apply patches
-        run: git apply patches/*.patch
+        run: git am patches/*.patch
 
       - name: Set git config for long paths
         run: git config --system core.longpaths true
