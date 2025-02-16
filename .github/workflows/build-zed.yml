@@ -54,6 +54,12 @@ jobs:
           name: zed
           path: zed\target\release\Zed.exe
 
+      - name: Build Windows Installer
+        uses: AliceOh/CreateWindowsInstaller@1.0.0
+        with:
+          exefile: zed\target\release\Zed.exe
+          version: nightly
+
       - name: Set date
         id: set-date
         shell: pwsh
@@ -71,7 +77,7 @@ jobs:
           tag_name: nightly
           prerelease: true
           files: |
-            zed/target/release/Zed.exe
+            Zed.exe.msi
 
       - name: Release Nightly
         uses: softprops/action-gh-release@v2
@@ -82,4 +88,4 @@ jobs:
           tag_name: "nightly-${{ steps.set-date.outputs.CURRENT_DATE }}"
           prerelease: true
           files: |
-            zed/target/release/Zed.exe
+            Zed.exe.msi
