@@ -14,30 +14,32 @@ jobs:
   build:
     runs-on: windows-latest
     steps:
+      - name: Set git config for long paths
+        run: git config --system core.longpaths true
+
+      - name: Checkout self
+        uses: actions/checkout@v4
+
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           repository: zed-industries/zed
-
-      - name: Checkout self
-        uses: actions/checkout@v4
-        with:
-          path: "repo"
+          ref: main
+          path: zed
 
       - name: Apply patches
+        working-directory: zed
         run: |
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git config user.name "github-actions[bot]"
-          git am repo/patches/*.patch
+          git am ../patches/*.patch
 
-      - name: Set git config for long paths
-        run: git config --system core.longpaths true
-
-      - name: Install Rust
+      - name: Install rust nightly
         uses: dtolnay/rust-toolchain@stable
-
-      - name: Add WASM target
-        run: rustup target add wasm32-wasi
+        with:
+          toolchain: nightly
+          override: true
+          target: wasm32-wasip1
 
       - name: Install C++ build tools
         uses: ilammy/msvc-dev-cmd@v1
@@ -48,18 +50,19 @@ jobs:
         uses: Swatinem/rust-cache@v2
 
       - name: Run cargo
+        working-directory: zed
         run: cargo build --release
 
       - name: Attest build provenance
         uses: actions/attest-build-provenance@v2
         with:
-          subject-path: 'target\release\Zed.exe'
+          subject-path: 'zed\target\release\Zed.exe'
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
           name: zed
-          path: target\release\Zed.exe
+          path: zed\target\release\Zed.exe
 
       - name: Set date
         id: set-date
@@ -78,7 +81,7 @@ jobs:
           tag_name: nightly
           prerelease: true
           files: |
-            target/release/Zed.exe
+            zed/target/release/Zed.exe
 
       - name: Release Nightly
         uses: softprops/action-gh-release@v2
@@ -89,4 +92,4 @@ jobs:
           tag_name: "nightly-${{ steps.set-date.outputs.CURRENT_DATE }}"
           prerelease: true
           files: |
-            target/release/Zed.exe
+            zed/target/release/Zed.exe
