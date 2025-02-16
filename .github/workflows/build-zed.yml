@@ -17,22 +17,12 @@ jobs:
       - name: Set git config for long paths
         run: git config --system core.longpaths true
 
-      - name: Checkout self
-        uses: actions/checkout@v4
-
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          repository: zed-industries/zed
+          repository: chapel/zed
           ref: main
           path: zed
-
-      - name: Apply patches
-        working-directory: zed
-        run: |
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git config user.name "github-actions[bot]"
-          git am ../patches
 
       - name: Install rust nightly
         uses: dtolnay/rust-toolchain@stable
